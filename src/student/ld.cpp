@@ -190,7 +190,7 @@ FLEObject FLE_ld(const std::vector<FLEObject>& objects, const LinkerOptions& opt
                 external_symbols.insert(sym.name);
                 continue;
             }
-            else if(sym.type == SymbolType::WEAK && sym.section != ".text")
+            else if(sym.type == SymbolType::WEAK && sym.section != ".text") // 弱变量符号
             {
                 external_symbols.insert(sym.name);
             }
