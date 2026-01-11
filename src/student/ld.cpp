@@ -190,7 +190,10 @@ FLEObject FLE_ld(const std::vector<FLEObject>& objects, const LinkerOptions& opt
                 external_symbols.insert(sym.name);
                 continue;
             }
-
+            else if(sym.type == SymbolType::WEAK && sym.section != ".text")
+            {
+                external_symbols.insert(sym.name);
+            }
             Symbol global_sym = sym;
 
             // 局部符号名称要加个文件名前缀
@@ -267,7 +270,6 @@ FLEObject FLE_ld(const std::vector<FLEObject>& objects, const LinkerOptions& opt
     // 先构建符号与GOT表和PLT表之间的映射关系
     for(const auto& sym_name : external_symbols)
     {
-        cout << sym_name << " " << so_symbol_section[sym_name] << "哈基米" << endl;
         if(so_symbol_section[sym_name] == ".text")
         {
             // 外部函数
@@ -450,19 +452,19 @@ FLEObject FLE_ld(const std::vector<FLEObject>& objects, const LinkerOptions& opt
                         merged_sec[now_sec].data[curr_off + reloc.offset + 6] = (reloc_value >> 48) & 0xFF;
                         merged_sec[now_sec].data[curr_off + reloc.offset + 7] = (reloc_value >> 56) & 0xFF; // 最高字节
                     }
-                    else if (reloc.type == RelocationType::R_X86_64_PC32)
+                    else if(reloc.type == RelocationType::R_X86_64_32 || reloc.type == RelocationType::R_X86_64_32S)
                     {
-                        int32_t reloc_value = static_cast<int64_t>(S + A - P);
-                        // 32位相对地址
+                        uint32_t reloc_value = static_cast<uint32_t>(S + A);
+                        // 32位绝对地址
                         merged_sec[now_sec].data[curr_off + reloc.offset]     = reloc_value & 0xFF;         // 最低字节
                         merged_sec[now_sec].data[curr_off + reloc.offset + 1] = (reloc_value >> 8) & 0xFF;
                         merged_sec[now_sec].data[curr_off + reloc.offset + 2] = (reloc_value >> 16) & 0xFF;
                         merged_sec[now_sec].data[curr_off + reloc.offset + 3] = (reloc_value >> 24) & 0xFF; // 最高字节
                     }
-                    else //(reloc.type == RelocationType::R_X86_64_32 || reloc.type == RelocationType::R_X86_64_32S)
+                    else //  (reloc.type == RelocationType::R_X86_64_PC32)
                     {
-                        uint32_t reloc_value = static_cast<uint32_t>(S + A);
-                        // 32位绝对地址
+                        int32_t reloc_value = static_cast<int64_t>(S + A - P);
+                        // 32位相对地址
                         merged_sec[now_sec].data[curr_off + reloc.offset]     = reloc_value & 0xFF;         // 最低字节
                         merged_sec[now_sec].data[curr_off + reloc.offset + 1] = (reloc_value >> 8) & 0xFF;
                         merged_sec[now_sec].data[curr_off + reloc.offset + 2] = (reloc_value >> 16) & 0xFF;
