@@ -158,7 +158,7 @@ struct FLEObject {
     size_t entry = 0; // Entry point (for .exe)
 
     std::vector<std::string> needed; // List of shared libraries this object depends on (e.g., "libfoo.so")
-    std::vector<Relocation> dyn_relocs; // Dynamic relocations
+    std::vector<Relocation> dyn_relocs; // Dynamic relocations 动态重定位表
 };
 
 class FLEWriter {
