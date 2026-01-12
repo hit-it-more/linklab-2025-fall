@@ -33,7 +33,7 @@ FLEObject FLE_ld(const std::vector<FLEObject>& objects, const LinkerOptions& opt
     uint64_t base_vaddr = 0x400000; // 基础地址
     size_t page_size = 0x1000; // x86_64 页面大小对齐
 
-    // 区分静态库与目标文件
+    // 区分静态库与目标文件与共享库
     for(size_t obj_idx = 0; obj_idx < objects.size(); ++obj_idx)
     {
         const auto& obj = objects[obj_idx];
@@ -351,7 +351,6 @@ FLEObject FLE_ld(const std::vector<FLEObject>& objects, const LinkerOptions& opt
         int64_t got_offset = got_addr - (plt_addr + 6) ;
         vector<uint8_t> stub = generate_plt_stub(got_offset);
         // 更新plt中的数据
-        cout << sym_name << " " << got_offset << endl;
         for(int i = 0;i < 6;i++)
         {
             merged_sec[".plt"].data[plt_idx * 6 + i]  = stub[i];   
